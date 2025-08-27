@@ -7,6 +7,10 @@
       import(chrome.runtime.getURL('content/picker.js')).then(module => {
         module.startPicker();
       });
+    } else if (msg?.type === 'PICKER_DONE') {
+      import(chrome.runtime.getURL('content/scraper.js')).then(mod => {
+        mod.runScrape(msg.selector);
+      });
     }
   });
 })();

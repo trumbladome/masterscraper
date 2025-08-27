@@ -5,6 +5,10 @@ document.getElementById('start').addEventListener('click', () => {
   });
 });
 
+document.getElementById('export').addEventListener('click',()=>{
+  chrome.runtime.sendMessage({type:'EXPORT_CSV'});
+});
+
 const progressDiv = document.getElementById('progress');
 chrome.runtime.onMessage.addListener((msg, sender) => {
   if(msg?.type==='QUEUE_PROGRESS'){

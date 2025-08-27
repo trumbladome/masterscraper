@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>STEPTWO Recipes</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <style>
+    body{font-family:sans-serif;margin:0;padding:20px;}
+    input, textarea{width:100%;margin:5px 0;padding:6px;}
+    button{margin-top:10px;padding:8px 12px;}
+    .recipes{margin-top:20px;}
+  </style>
+</head>
+<body>
+  <div id="app">
+    <h2>Create Recipe</h2>
+    <label>Recipe Name</label>
+    <input v-model="name" placeholder="My Recipe" />
+    <label>CSS Selector</label>
+    <input v-model="selector" placeholder="img.gallery-item" />
+    <label>Description</label>
+    <textarea v-model="description" rows="3"></textarea>
+    <button @click="save">Save Recipe</button>
+
+    <div class="recipes" v-if="recipes.length">
+      <h3>Saved Recipes</h3>
+      <ul>
+        <li v-for="r in recipes">
+          <strong>{{r.name}}</strong> — {{r.selector}}
+          <button @click="remove(r)">Delete</button>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <script src="options.js"></script>
+</body>
+</html>

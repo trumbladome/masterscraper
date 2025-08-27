@@ -12,6 +12,19 @@ queue.setProgressCallback(progress => {
 
 let lastItems = [];
 
+let savedConcurrency = 5;
+chrome.storage.sync.get('concurrency').then(data=>{
+  if(data.concurrency) savedConcurrency = data.concurrency;
+  queue.setConcurrency(savedConcurrency);
+});
+
+chrome.storage.onChanged.addListener(changes=>{
+  if(changes.concurrency){
+    const newVal = changes.concurrency.newValue;
+    queue.setConcurrency(newVal);
+  }
+});
+
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (!msg || !msg.type) return;
   switch (msg.type) {

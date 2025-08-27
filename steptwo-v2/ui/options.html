@@ -22,6 +22,8 @@
     <input v-model="selector" placeholder="img.gallery-item" />
     <label>Description</label>
     <textarea v-model="description" rows="3"></textarea>
+    <label>Concurrency (1-10)</label>
+    <input type="number" v-model.number="concurrency" min="1" max="10" />
     <button @click="save">Save Recipe</button>
 
     <div class="recipes" v-if="recipes.length">

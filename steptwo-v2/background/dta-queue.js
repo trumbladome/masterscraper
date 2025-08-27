@@ -74,4 +74,11 @@ export class DownloadQueue {
   detachListeners() {
     if (this._onChanged) chrome.downloads.onChanged.removeListener(this._onChanged);
   }
+
+  setConcurrency(n){
+    if(typeof n==='number'&&n>0){
+      this.concurrency = n;
+      this._next();
+    }
+  }
 }

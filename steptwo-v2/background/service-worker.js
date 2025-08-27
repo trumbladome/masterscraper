@@ -13,8 +13,10 @@ queue.setProgressCallback(progress => {
 let lastItems = [];
 
 let savedConcurrency = 5;
-chrome.storage.sync.get('concurrency').then(data=>{
-  if(data.concurrency) savedConcurrency = data.concurrency;
+let maskPattern='*name* -*num*.*ext*';
+chrome.storage.sync.get(['concurrency','mask']).then(d=>{
+  if(d.concurrency) savedConcurrency = d.concurrency;
+  if(d.mask) maskPattern=d.mask;
   queue.setConcurrency(savedConcurrency);
 });
 
@@ -23,6 +25,7 @@ chrome.storage.onChanged.addListener(changes=>{
     const newVal = changes.concurrency.newValue;
     queue.setConcurrency(newVal);
   }
+  if(changes.mask) maskPattern=changes.mask.newValue;
 });
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
@@ -38,11 +41,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         const urlObj = new URL(url);
         const namePart = urlObj.pathname.split('/').pop() || 'file';
         const ext = namePart.includes('.') ? namePart.split('.').pop() : '';
-        const filename = applyMask('*name* -*num*.*ext*', {
-          name: namePart.replace(/\.[^/.]+$/, ''),
-          num: counter++,
-          ext
-        });
+        const filename = applyMask(maskPattern,{name: namePart.replace(/\.[^/.]+$/, ''), num: counter++, ext, host:urlObj.host, subdirs:urlObj.pathname.split('/').slice(0,-1).join('/')});
         queue.add({url, filename});
       }
       break;

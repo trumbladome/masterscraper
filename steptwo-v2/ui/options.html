@@ -24,6 +24,10 @@
     <textarea v-model="description" rows="3"></textarea>
     <label>Concurrency (1-10)</label>
     <input type="number" v-model.number="concurrency" min="1" max="10" />
+    <label>Filename Mask</label>
+    <input v-model="mask" placeholder="*name* -*num*.*ext*" />
+    <small>Tokens: *name*, *num*, *ext*, *date*, *host*, *subdirs*</small>
+    <div style="margin-top:5px;font-size:12px;color:#555;">Preview: {{maskPreview}}</div>
     <button @click="save">Save Recipe</button>
 
     <div class="recipes" v-if="recipes.length">

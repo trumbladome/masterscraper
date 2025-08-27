@@ -9,6 +9,10 @@ document.getElementById('export').addEventListener('click',()=>{
   chrome.runtime.sendMessage({type:'EXPORT_CSV'});
 });
 
+document.getElementById('export-xlsx').addEventListener('click',()=>{
+  chrome.runtime.sendMessage({type:'EXPORT_XLSX'});
+});
+
 const progressDiv = document.getElementById('progress');
 chrome.runtime.onMessage.addListener((msg, sender) => {
   if(msg?.type==='QUEUE_PROGRESS'){

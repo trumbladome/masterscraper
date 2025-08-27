@@ -2,6 +2,7 @@
 // Message router and integration with DownThemAll queue (to be implemented)
 import {DownloadQueue} from './dta-queue.js';
 import {applyMask} from './filename-mask.js';
+import * as XLSX from 'xlsx';
 
 const queue = new DownloadQueue({concurrency:5,retryLimit:3});
 queue.attachListeners();
@@ -41,6 +42,17 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       const blob = new Blob([csv], {type:'text/csv'});
       const url = URL.createObjectURL(blob);
       chrome.downloads.download({url, filename:'scrape.csv', saveAs:true});
+      break;
+    }
+    case 'EXPORT_XLSX': {
+      if(!lastItems.length) return;
+      const ws = XLSX.utils.json_to_sheet(lastItems);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Scrape');
+      const wbout = XLSX.write(wb,{type:'array',bookType:'xlsx'});
+      const blob = new Blob([wbout],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+      const url = URL.createObjectURL(blob);
+      chrome.downloads.download({url, filename:'scrape.xlsx', saveAs:true});
       break;
     }
     default:

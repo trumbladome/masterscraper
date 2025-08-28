@@ -45,6 +45,30 @@ createApp({
     async remove(r){
       this.recipes = this.recipes.filter(x=>x!==r);
       await chrome.storage.sync.set({recipes:this.recipes});
+    },
+    setupRecorderButton(){
+      const btn=document.getElementById('recordBtn');
+      const statusDiv=document.getElementById('macroStatus');
+      let recording=false;
+      btn.addEventListener('click',()=>{
+        chrome.tabs.query({active:true,currentWindow:true}, tabs=>{
+          if(!tabs.length) return;
+          const tabId=tabs[0].id;
+          chrome.tabs.sendMessage(tabId,{type: recording?'STOP_REC':'START_REC'});
+          recording=!recording;
+          btn.textContent=recording?'Stop Recording':'Start Recording';
+          statusDiv.textContent=recording?'Recording…':'Idle';
+        });
+      });
+      chrome.runtime.onMessage.addListener((msg)=>{
+        if(msg?.type==='REC_COMPLETE'){
+          recording=false;
+          btn.textContent='Start Recording';
+          statusDiv.textContent=`Recorded ${msg.steps.length} steps`;
+          // store globally (simple demo)
+          chrome.storage.sync.set({macroSteps:msg.steps});
+        }
+      });
     }
   }
 }).mount('#app');

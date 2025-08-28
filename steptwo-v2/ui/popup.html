@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>STEPTWO</title>
+  <style>
+    body{font-family:sans-serif;width:200px;margin:10px;}
+    button{width:100%;margin:5px 0;padding:8px;}
+    .toast{position:fixed;bottom:20px;right:20px;background:#333;color:#fff;padding:10px 16px;border-radius:4px;opacity:0;transition:opacity .3s;z-index:99999;font-size:12px;}
+    .toast.show{opacity:0.9;}
+  </style>
+  <!-- toast container -->
+  <div id="toast" class="toast"></div>
+</head>
+<body>
+  <button id="start">Start Picker</button>
+  <button id="stop" disabled>Stop</button>
+  <button id="export-xlsx">Export XLSX</button>
+  <button id="export">Export CSV</button>
+  <button id="pause">Pause</button>
+  <button id="resume" disabled>Resume</button>
+  <button id="smart">Smart Guess</button>
+  <div id="dupCounter" style="font-size:12px;margin-top:5px;color:#888;">Duplicates skipped: 0</div>
+  <div id="progress" style="font-size:12px;margin-top:10px;max-height:150px;overflow:auto;"></div>
+  <script src="popup.js"></script>
+</body>
+</html>

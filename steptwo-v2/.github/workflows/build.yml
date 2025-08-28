@@ -1,0 +1,33 @@
+name: Build and Package Extension
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install dependencies (none)
+        run: echo "No build deps"
+      - name: Lint JSON & YAML
+        run: |
+          sudo apt-get install -y jq yamllint
+          find steptwo-v2 -name '*.json' -exec jq . {} \;
+          yamllint .github/workflows
+      - name: Zip extension
+        run: |
+          cd steptwo-v2
+          zip -r ../steptwo-v2.zip . -x "*.DS_Store"
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: steptwo-v2-zip
+          path: steptwo-v2.zip

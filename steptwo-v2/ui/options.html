@@ -48,6 +48,8 @@
         <li v-for="(p, host) in profiles"><strong>{{host}}</strong>: {{p.selector}}</li>
       </ul>
     </details>
+    <label>Host Parallel Limit (1-5)</label>
+    <input type="number" v-model.number="hostLimit" min="1" max="5" />
   </div>
   <script src="options.js"></script>
 </body>

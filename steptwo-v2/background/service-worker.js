@@ -19,10 +19,12 @@ let lastItems = [];
 let savedConcurrency = 5;
 let maskPattern='*name* -*num*.*ext*';
 let retryLimit = 3;
-chrome.storage.sync.get(['concurrency','mask','retryLimit']).then(d=>{
+let hostLimit = 3;
+chrome.storage.sync.get(['concurrency','mask','retryLimit','hostLimit']).then(d=>{
   if(d.concurrency) savedConcurrency = d.concurrency;
   if(d.mask) maskPattern=d.mask;
   if(d.retryLimit!==undefined){ retryLimit = d.retryLimit; queue.setRetryLimit(retryLimit);} 
+  if(d.hostLimit!==undefined){ hostLimit = d.hostLimit; queue.setHostLimit(hostLimit);} 
   queue.setConcurrency(savedConcurrency);
 });
 
@@ -36,6 +38,7 @@ chrome.storage.onChanged.addListener(changes=>{
     retryLimit = changes.retryLimit.newValue;
     queue.setRetryLimit(retryLimit);
   }
+  if(changes.hostLimit){ hostLimit = changes.hostLimit.newValue; queue.setHostLimit(hostLimit);} 
 });
 
 chrome.storage.sync.get('autoDetectProfiles').then(d=>{if(typeof d.autoDetectProfiles==='boolean') autoDetect=d.autoDetectProfiles;});

@@ -54,6 +54,17 @@
     <label><input type="checkbox" v-model="darkMode"/> Dark Mode</label>
     <label>Download Subfolder (optional)</label>
     <input v-model="downloadFolder" placeholder="photos/holiday" />
+    <label>Min Image Width (px)</label>
+    <input type="number" v-model.number="minWidth" min="0" />
+    <label>Min Image Height (px)</label>
+    <input type="number" v-model.number="minHeight" min="0" />
+    <label>Allowed Formats</label>
+    <div>
+      <label><input type="checkbox" v-model="formats.jpeg"/> JPEG</label>
+      <label><input type="checkbox" v-model="formats.png"/> PNG</label>
+      <label><input type="checkbox" v-model="formats.webp"/> WEBP</label>
+      <label><input type="checkbox" v-model="formats.gif"/> GIF</label>
+    </div>
   </div>
   <script src="options.js"></script>
 </body>

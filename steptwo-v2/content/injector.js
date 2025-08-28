@@ -36,6 +36,10 @@
           alert('Smart guess could not detect a gallery. Use manual picker.');
         }
       });
+    } else if(msg?.type==='START_REC'){
+      import(chrome.runtime.getURL('content/macro/recorder.js')).then(m=>m.startRec());
+    } else if(msg?.type==='STOP_REC'){
+      import(chrome.runtime.getURL('content/macro/recorder.js')).then(m=>m.stopRec());
     }
   });
 

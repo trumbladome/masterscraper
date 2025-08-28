@@ -33,12 +33,16 @@ document.getElementById('smart').addEventListener('click',()=>{
 });
 
 const progressDiv = document.getElementById('progress');
+const MAX_LOG = 500;
 chrome.runtime.onMessage.addListener((msg, sender) => {
   if(msg?.type==='QUEUE_PROGRESS'){
     const {progress} = msg;
     const line = document.createElement('div');
-    line.textContent = `${progress.state}: ${progress.job?.filename || ''}`;
+    line.textContent = `${new Date().toLocaleTimeString()} - ${progress.state}: ${progress.job?.filename || ''}`;
     progressDiv.appendChild(line);
+    if(progressDiv.children.length>MAX_LOG){
+      progressDiv.removeChild(progressDiv.firstChild);
+    }
     progressDiv.scrollTop = progressDiv.scrollHeight;
   }
 });

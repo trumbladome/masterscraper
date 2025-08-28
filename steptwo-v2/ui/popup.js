@@ -25,6 +25,13 @@ document.getElementById('resume').addEventListener('click',()=>{
   document.getElementById('resume').disabled=true;
 });
 
+document.getElementById('smart').addEventListener('click',()=>{
+  chrome.tabs.query({active:true,currentWindow:true}, tabs => {
+    if(!tabs.length) return;
+    chrome.tabs.sendMessage(tabs[0].id,{type:'SMART_GUESS'});
+  });
+});
+
 const progressDiv = document.getElementById('progress');
 chrome.runtime.onMessage.addListener((msg, sender) => {
   if(msg?.type==='QUEUE_PROGRESS'){

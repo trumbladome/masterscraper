@@ -28,6 +28,33 @@
       import(chrome.runtime.getURL('content/scraper.js')).then(mod => {
         mod.runScrape(msg.selector);
       });
+    } else if(msg?.type==='SMART_GUESS'){
+      smartGuess().then(sel=>{
+        if(sel){
+          import(chrome.runtime.getURL('content/scraper.js')).then(m=>m.runScrape(sel));
+        } else {
+          alert('Smart guess failed. Please use manual picker.');
+        }
+      });
     }
   });
+
+  async function smartGuess(){
+    const candidates = new Map();
+    const all = Array.from(document.querySelectorAll('img,a,div'));
+    for(const el of all){
+      if(!el.offsetParent) continue; // not visible
+      const parent = el.parentElement;
+      if(!parent) continue;
+      const sel = parent.tagName.toLowerCase();
+      const count = candidates.get(sel)||0;
+      candidates.set(sel,count+1);
+    }
+    let bestSel='',bestCount=0;
+    for(const [sel,count] of candidates){
+      if(count>bestCount){bestCount=count;bestSel=sel;}
+    }
+    if(bestCount<10) return '';
+    return bestSel+' img';
+  }
 })();

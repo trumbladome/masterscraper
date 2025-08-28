@@ -29,11 +29,11 @@
         mod.runScrape(msg.selector);
       });
     } else if(msg?.type==='SMART_GUESS'){
-      smartGuess().then(sel=>{
+      import(chrome.runtime.getURL('content/smartGuess.js')).then(m=>m.guessSelector()).then(sel=>{
         if(sel){
-          import(chrome.runtime.getURL('content/scraper.js')).then(m=>m.runScrape(sel));
+          import(chrome.runtime.getURL('content/scraper.js')).then(scr=>scr.runScrape(sel));
         } else {
-          alert('Smart guess failed. Please use manual picker.');
+          alert('Smart guess could not detect a gallery. Use manual picker.');
         }
       });
     }

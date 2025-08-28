@@ -46,3 +46,13 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
     progressDiv.scrollTop = progressDiv.scrollHeight;
   }
 });
+
+const dupDiv=document.getElementById('dupCounter'); let dupCount=0;
+chrome.runtime.onMessage.addListener((msg)=>{
+  if(msg?.type==='DUP_SKIPPED'){
+    dupCount++; dupDiv.textContent=`Duplicates skipped: ${dupCount}`;
+    const line=document.createElement('div'); line.style.color='#999'; line.textContent=`dup skipped: ${msg.url}`;
+    progressDiv.appendChild(line);
+    if(progressDiv.children.length>MAX_LOG) progressDiv.removeChild(progressDiv.firstChild);
+  }
+});

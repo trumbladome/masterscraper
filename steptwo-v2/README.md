@@ -32,6 +32,10 @@ STEPTWO V2 fuses the industrial-grade download engine of **DownThemAll!** with t
 • Toggle auto profiles; inspect bundled profile list.  
 • Build Recipes, edit Filename Mask, enable Dark Mode.
 
+## Duplicate-Image Filter
+
+Enable **Skip duplicate images** in *Options → Filters*. The scraper computes a fast content hash (inside your browser, no upload) for each photo and ignores any image whose hash has already appeared in the current session. The progress log and popup counter show how many duplicates were skipped.
+
 ## Add a New Site Profile
 Edit `steptwo-v2/profiles.json`:
 ```json

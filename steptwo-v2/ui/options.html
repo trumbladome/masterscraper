@@ -52,6 +52,8 @@
     <label>Host Parallel Limit (1-5)</label>
     <input type="number" v-model.number="hostLimit" min="1" max="5" />
     <label><input type="checkbox" v-model="darkMode"/> Dark Mode</label>
+    <label>Download Subfolder (optional)</label>
+    <input v-model="downloadFolder" placeholder="photos/holiday" />
   </div>
   <script src="options.js"></script>
 </body>

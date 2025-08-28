@@ -13,6 +13,18 @@ document.getElementById('export-xlsx').addEventListener('click',()=>{
   chrome.runtime.sendMessage({type:'EXPORT_XLSX'});
 });
 
+document.getElementById('pause').addEventListener('click',()=>{
+  chrome.runtime.sendMessage({type:'QUEUE_PAUSE'});
+  document.getElementById('pause').disabled=true;
+  document.getElementById('resume').disabled=false;
+});
+
+document.getElementById('resume').addEventListener('click',()=>{
+  chrome.runtime.sendMessage({type:'QUEUE_RESUME'});
+  document.getElementById('pause').disabled=false;
+  document.getElementById('resume').disabled=true;
+});
+
 const progressDiv = document.getElementById('progress');
 chrome.runtime.onMessage.addListener((msg, sender) => {
   if(msg?.type==='QUEUE_PROGRESS'){

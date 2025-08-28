@@ -8,6 +8,19 @@ export class DownloadQueue {
     this.queue = [];
     this.active = new Map(); // downloadId -> job
     this.onProgress = () => {};
+    this.paused = false;
+  }
+
+  pause(){
+    this.paused = true;
+    this.onProgress({state:'paused'});
+  }
+
+  resume(){
+    if(!this.paused) return;
+    this.paused = false;
+    this.onProgress({state:'resumed'});
+    this._next();
   }
 
   setProgressCallback(cb) {
@@ -22,6 +35,7 @@ export class DownloadQueue {
   }
 
   _next() {
+    if (this.paused) return;
     if (this.active.size >= this.concurrency) return;
     const job = this.queue.shift();
     if (!job) return;

@@ -67,6 +67,14 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       chrome.downloads.download({url, filename:'scrape.xlsx', saveAs:true});
       break;
     }
+    case 'QUEUE_PAUSE':{
+      queue.pause();
+      break;
+    }
+    case 'QUEUE_RESUME':{
+      queue.resume();
+      break;
+    }
     default:
       console.warn('Unknown message type', msg.type);
   }

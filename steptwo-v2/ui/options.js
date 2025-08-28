@@ -2,9 +2,9 @@ import {applyMask} from '../background/filename-mask.js';
 
 const {createApp} = Vue;
 createApp({
-  data(){return{ name:'', selector:'', description:'', concurrency:5, retryLimit:3, hostLimit:3, downloadFolder:'', minWidth:0,minHeight:0, formats:{jpeg:true,png:true,webp:true,gif:false}, mask:'*name* -*num*.*ext*', maskPreview:'', autoDetect:true, profiles:{}, recipes:[] , skipDup:false}},
+  data(){return{ name:'', selector:'', description:'', concurrency:5, retryLimit:3, hostLimit:3, downloadFolder:'', minWidth:0,minHeight:0, formats:{jpeg:true,png:true,webp:true,gif:false}, mask:'*name* -*num*.*ext*', maskPreview:'', autoDetect:true, profiles:{}, recipes:[] , skipDup:false, zipMode:false}},
   async created(){
-    const data = await chrome.storage.sync.get(['recipes','concurrency','mask','autoDetectProfiles','retryLimit','hostLimit','downloadFolder','minWidth','minHeight','formats','skipDup']);
+    const data = await chrome.storage.sync.get(['recipes','concurrency','mask','autoDetectProfiles','retryLimit','hostLimit','downloadFolder','minWidth','minHeight','formats','skipDup','zipMode']);
     this.recipes = data.recipes || [];
     this.concurrency = data.concurrency || 5;
     this.retryLimit = data.retryLimit ?? 3;
@@ -16,6 +16,7 @@ createApp({
     this.minHeight = data.minHeight ?? 0;
     this.formats = data.formats || this.formats;
     this.skipDup = data.skipDup ?? false;
+    this.zipMode = data.zipMode ?? false;
     this.updatePreview();
     chrome.runtime.sendMessage({type:'GET_PROFILES'}, resp=>{ if(resp){ this.profiles = resp.profiles; }});
   },
@@ -32,7 +33,8 @@ createApp({
       handler(val){ chrome.storage.sync.set({formats:val}); },
       deep:true
     },
-    skipDup(val){ chrome.storage.sync.set({skipDup:val}); }
+    skipDup(val){ chrome.storage.sync.set({skipDup:val}); },
+    zipMode(val){ chrome.storage.sync.set({zipMode:val}); }
   },
   methods:{
     updatePreview(){

@@ -97,4 +97,10 @@ export class DownloadQueue {
       this._next();
     }
   }
+
+  setRetryLimit(n){
+    if(typeof n==='number'&&n>=0){
+      this.retryLimit = n;
+    }
+  }
 }

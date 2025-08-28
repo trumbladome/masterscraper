@@ -3,6 +3,10 @@
 import {DownloadQueue} from './dta-queue.js';
 import {applyMask} from './filename-mask.js';
 import * as XLSX from 'xlsx';
+import profilesData from '../profiles.json' assert { type: 'json' };
+
+let profiles = profilesData;
+let autoDetect = true;
 
 const queue = new DownloadQueue({concurrency:5,retryLimit:3});
 queue.attachListeners();
@@ -28,7 +32,13 @@ chrome.storage.onChanged.addListener(changes=>{
   if(changes.mask) maskPattern=changes.mask.newValue;
 });
 
+chrome.storage.sync.get('autoDetectProfiles').then(d=>{if(typeof d.autoDetectProfiles==='boolean') autoDetect=d.autoDetectProfiles;});
+
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  if(msg?.type==='GET_PROFILES'){
+    sendResponse({profiles, autoDetect});
+    return; // sync response
+  }
   if (!msg || !msg.type) return;
   switch (msg.type) {
     case 'SCRAPE_DONE': {

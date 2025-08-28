@@ -1,10 +1,27 @@
 // scraper.js - very basic extractor that collects href/src values
 
 // fetch filter settings
-const settings = await chrome.storage.sync.get(['minWidth','minHeight','formats']);
+const settings = await chrome.storage.sync.get(['minWidth','minHeight','formats','skipDup']);
 const minW = settings.minWidth||0;
 const minH = settings.minHeight||0;
 const formats = settings.formats||{jpeg:true,png:true,webp:true,gif:false};
+const skipDup = settings.skipDup || false;
+let seenHashes = new Set();
+let hashWorker = null;
+function getWorker(){
+  if(hashWorker) return hashWorker;
+  hashWorker = new Worker(chrome.runtime.getURL('content/hashWorker.js'));
+  return hashWorker;
+}
+function hashImage(url){
+  return new Promise(res=>{
+    const id=Math.random().toString(36).slice(2);
+    const wk=getWorker();
+    const listener = e=>{ if(e.data.id===id){ wk.removeEventListener('message',listener); res(e.data.hash||null);} };
+    wk.addEventListener('message',listener);
+    wk.postMessage({id,url});
+  });
+}
 
 function validFormat(url){
   const ext = (url.split('.').pop()||'').toLowerCase().split(/[#?]/)[0];
@@ -44,6 +61,14 @@ export async function runScrape(selector) {
       if(!url) continue;
       if(!validFormat(url)) continue;
       if(!(await passesSize(url))) continue;
+      if(skipDup){
+        const hash = await hashImage(url);
+        if(!hash || seenHashes.has(hash)){
+          chrome.runtime.sendMessage({type:'DUP_SKIPPED',url});
+          continue; // duplicate
+        }
+        seenHashes.add(hash);
+      }
       items.push({url});
     }
   }

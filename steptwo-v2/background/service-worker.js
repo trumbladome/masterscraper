@@ -46,9 +46,51 @@ chrome.storage.onChanged.addListener(changes=>{
 
 chrome.storage.sync.get('autoDetectProfiles').then(d=>{if(typeof d.autoDetectProfiles==='boolean') autoDetect=d.autoDetectProfiles;});
 
+const REMOTE_PROFILE_URL = 'https://raw.githubusercontent.com/steptwo-profiles/main/profiles.json';
+let remoteProfiles = null;
+let profilesLastUpdate = 0;
+
+async function fetchRemoteProfiles(force=false){
+  if(!autoDetect) return;
+  if(!force && Date.now()-profilesLastUpdate < 1000*60*60*24*7){ // 7 days
+    return;
+  }
+  try{
+    const res = await fetch(REMOTE_PROFILE_URL,{cache:'no-cache'});
+    if(res.ok){
+      const json = await res.json();
+      remoteProfiles = json;
+      profilesLastUpdate = Date.now();
+      await chrome.storage.local.set({remoteProfiles, profilesLastUpdate});
+      console.log('Remote profiles updated');
+    }
+  }catch(e){console.warn('Remote profile fetch failed',e);}
+}
+
+// load cache
+chrome.storage.local.get(['remoteProfiles','profilesLastUpdate']).then(d=>{
+  if(d.remoteProfiles) remoteProfiles = d.remoteProfiles;
+  profilesLastUpdate = d.profilesLastUpdate||0;
+  fetchRemoteProfiles();
+});
+
+chrome.alarms.onAlarm.addListener(a=>{if(a.name==='updateProfiles') fetchRemoteProfiles();});
+chrome.alarms.create('updateProfiles',{periodInMinutes:60*24}); // daily
+
+chrome.runtime.onMessage.addListener((msg,sender,sendResponse)=>{
+  if(msg?.type==='UPDATE_PROFILES'){
+    fetchRemoteProfiles(true).then(()=>sendResponse({ok:true,updated:remoteProfiles!=null}));
+    return true; // async
+  }
+});
+
+function getProfiles(){
+  return remoteProfiles || profiles;
+}
+
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if(msg?.type==='GET_PROFILES'){
-    sendResponse({profiles, autoDetect});
+    sendResponse({profiles: getProfiles(), autoDetect});
     return; // sync response
   }
   if (!msg || !msg.type) return;

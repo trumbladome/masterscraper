@@ -24,6 +24,8 @@
     <textarea v-model="description" rows="3"></textarea>
     <label>Concurrency (1-10)</label>
     <input type="number" v-model.number="concurrency" min="1" max="10" />
+    <label>Retry Limit (0-5)</label>
+    <input type="number" v-model.number="retryLimit" min="0" max="5" />
     <label>Filename Mask</label>
     <input v-model="mask" placeholder="*name* -*num*.*ext*" />
     <small>Tokens: *name*, *num*, *ext*, *date*, *host*, *subdirs*</small>

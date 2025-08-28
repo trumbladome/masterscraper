@@ -18,9 +18,11 @@ let lastItems = [];
 
 let savedConcurrency = 5;
 let maskPattern='*name* -*num*.*ext*';
-chrome.storage.sync.get(['concurrency','mask']).then(d=>{
+let retryLimit = 3;
+chrome.storage.sync.get(['concurrency','mask','retryLimit']).then(d=>{
   if(d.concurrency) savedConcurrency = d.concurrency;
   if(d.mask) maskPattern=d.mask;
+  if(d.retryLimit!==undefined){ retryLimit = d.retryLimit; queue.setRetryLimit(retryLimit);} 
   queue.setConcurrency(savedConcurrency);
 });
 
@@ -30,6 +32,10 @@ chrome.storage.onChanged.addListener(changes=>{
     queue.setConcurrency(newVal);
   }
   if(changes.mask) maskPattern=changes.mask.newValue;
+  if(changes.retryLimit){
+    retryLimit = changes.retryLimit.newValue;
+    queue.setRetryLimit(retryLimit);
+  }
 });
 
 chrome.storage.sync.get('autoDetectProfiles').then(d=>{if(typeof d.autoDetectProfiles==='boolean') autoDetect=d.autoDetectProfiles;});

@@ -2,16 +2,20 @@ import {applyMask} from '../background/filename-mask.js';
 
 const {createApp} = Vue;
 createApp({
-  data(){return{ name:'', selector:'', description:'', concurrency:5, mask:'*name* -*num*.*ext*', maskPreview:'', recipes:[] }},
+  data(){return{ name:'', selector:'', description:'', concurrency:5, mask:'*name* -*num*.*ext*', maskPreview:'', autoDetect:true, profiles:{}, recipes:[] }},
   async created(){
-    const data = await chrome.storage.sync.get(['recipes','concurrency','mask']);
+    const data = await chrome.storage.sync.get(['recipes','concurrency','mask','autoDetectProfiles']);
     this.recipes = data.recipes || [];
     this.concurrency = data.concurrency || 5;
     this.mask = data.mask || this.mask;
+    this.autoDetect = data.autoDetectProfiles !== false; // default true
     this.updatePreview();
+    // fetch profiles
+    chrome.runtime.sendMessage({type:'GET_PROFILES'}, resp=>{ if(resp){ this.profiles = resp.profiles; }});
   },
   watch:{
-    mask(){this.updatePreview();}
+    mask(){this.updatePreview();},
+    autoDetect(val){ chrome.storage.sync.set({autoDetectProfiles:val}); }
   },
   methods:{
     updatePreview(){

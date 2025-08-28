@@ -39,6 +39,13 @@
         </li>
       </ul>
     </div>
+    <label><input type="checkbox" v-model="autoDetect"/> Use Site Profiles (auto)</label>
+    <details style="margin-top:10px;">
+      <summary>Bundled Site Profiles</summary>
+      <ul>
+        <li v-for="(p, host) in profiles"><strong>{{host}}</strong>: {{p.selector}}</li>
+      </ul>
+    </details>
   </div>
   <script src="options.js"></script>
 </body>

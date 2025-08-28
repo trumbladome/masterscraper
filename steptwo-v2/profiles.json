@@ -10,5 +10,11 @@
   },
   "flickr.com": {
     "selector": "div.photo-list-photo-view img"
+  },
+  "imago-images.com": {
+    "selector": "img.responsive-image__image"
+  },
+  "mirrorpix.com": {
+    "selector": "div.asset img, img.photo"  
   }
 }

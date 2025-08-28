@@ -2,8 +2,9 @@
 // NOTE: This is an initial version focusing on concurrency, retries, and progress callbacks.
 
 export class DownloadQueue {
-  constructor({concurrency = 5, retryLimit = 3} = {}) {
+  constructor({concurrency = 5, retryLimit = 3, hostLimit = 3} = {}) {
     this.concurrency = concurrency;
+    this.hostLimit = hostLimit;
     this.retryLimit = retryLimit;
     this.queue = [];
     this.active = new Map(); // downloadId -> job
@@ -37,8 +38,15 @@ export class DownloadQueue {
   _next() {
     if (this.paused) return;
     if (this.active.size >= this.concurrency) return;
-    const job = this.queue.shift();
-    if (!job) return;
+    // find next job whose host has free slot
+    let idx = this.queue.findIndex(job=>{
+      const host = new URL(job.url).host;
+      const count = Array.from(this.active.values()).filter(j=>new URL(j.url).host===host).length;
+      return count < this.hostLimit;
+    });
+    if(idx===-1) return; // no job can run now
+    const [job] = this.queue.splice(idx,1);
+    const host = new URL(job.url).host;
     const options = {
       url: job.url,
       filename: job.filename,
@@ -50,6 +58,7 @@ export class DownloadQueue {
         this._handleError(job);
         return;
       }
+      job.host = host;
       this.active.set(downloadId, job);
       this.onProgress({state:'started', job, downloadId});
     });
@@ -101,6 +110,12 @@ export class DownloadQueue {
   setRetryLimit(n){
     if(typeof n==='number'&&n>=0){
       this.retryLimit = n;
+    }
+  }
+
+  setHostLimit(n){
+    if(typeof n==='number'&&n>=1){
+      this.hostLimit = n;
     }
   }
 }

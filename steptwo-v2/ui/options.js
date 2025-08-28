@@ -2,9 +2,9 @@ import {applyMask} from '../background/filename-mask.js';
 
 const {createApp} = Vue;
 createApp({
-  data(){return{ name:'', selector:'', description:'', concurrency:5, retryLimit:3, hostLimit:3, downloadFolder:'', mask:'*name* -*num*.*ext*', maskPreview:'', autoDetect:true, profiles:{}, recipes:[] }},
+  data(){return{ name:'', selector:'', description:'', concurrency:5, retryLimit:3, hostLimit:3, downloadFolder:'', minWidth:0,minHeight:0, formats:{jpeg:true,png:true,webp:true,gif:false}, mask:'*name* -*num*.*ext*', maskPreview:'', autoDetect:true, profiles:{}, recipes:[] }},
   async created(){
-    const data = await chrome.storage.sync.get(['recipes','concurrency','mask','autoDetectProfiles','retryLimit','hostLimit','downloadFolder']);
+    const data = await chrome.storage.sync.get(['recipes','concurrency','mask','autoDetectProfiles','retryLimit','hostLimit','downloadFolder','minWidth','minHeight','formats']);
     this.recipes = data.recipes || [];
     this.concurrency = data.concurrency || 5;
     this.retryLimit = data.retryLimit ?? 3;
@@ -12,6 +12,9 @@ createApp({
     this.downloadFolder = data.downloadFolder || '';
     this.mask = data.mask || this.mask;
     this.autoDetect = data.autoDetectProfiles !== false;
+    this.minWidth = data.minWidth ?? 0;
+    this.minHeight = data.minHeight ?? 0;
+    this.formats = data.formats || this.formats;
     this.updatePreview();
     chrome.runtime.sendMessage({type:'GET_PROFILES'}, resp=>{ if(resp){ this.profiles = resp.profiles; }});
   },
@@ -21,7 +24,13 @@ createApp({
     concurrency(val){ chrome.storage.sync.set({concurrency:val}); },
     retryLimit(val){ chrome.storage.sync.set({retryLimit:val}); },
     hostLimit(val){ chrome.storage.sync.set({hostLimit:val}); },
-    downloadFolder(val){ chrome.storage.sync.set({downloadFolder:val}); }
+    downloadFolder(val){ chrome.storage.sync.set({downloadFolder:val}); },
+    minWidth(val){ chrome.storage.sync.set({minWidth:val}); },
+    minHeight(val){ chrome.storage.sync.set({minHeight:val}); },
+    formats:{
+      handler(val){ chrome.storage.sync.set({formats:val}); },
+      deep:true
+    }
   },
   methods:{
     updatePreview(){

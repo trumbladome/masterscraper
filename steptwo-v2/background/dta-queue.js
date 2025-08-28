@@ -58,7 +58,9 @@ export class DownloadQueue {
   _handleError(job) {
     if (job.retries < this.retryLimit) {
       job.retries += 1;
-      this.queue.unshift(job); // retry soon
+      const delay = Math.min(30000, Math.pow(2, job.retries) * 1000); // 1s,2s,4s,... cap 30s
+      setTimeout(()=>{ this.queue.unshift(job); this._next(); }, delay);
+      this.onProgress({state:'retry', job, delay});
     } else {
       this.onProgress({state:'failed', job});
     }

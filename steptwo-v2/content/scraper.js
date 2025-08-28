@@ -1,9 +1,34 @@
 // scraper.js - very basic extractor that collects href/src values
 
+// fetch filter settings
+const settings = await chrome.storage.sync.get(['minWidth','minHeight','formats']);
+const minW = settings.minWidth||0;
+const minH = settings.minHeight||0;
+const formats = settings.formats||{jpeg:true,png:true,webp:true,gif:false};
+
+function validFormat(url){
+  const ext = (url.split('.').pop()||'').toLowerCase().split(/[#?]/)[0];
+  if(['jpg','jpeg'].includes(ext)) return formats.jpeg;
+  if(ext==='png') return formats.png;
+  if(ext==='webp') return formats.webp;
+  if(ext==='gif') return formats.gif;
+  return false;
+}
+
+async function passesSize(url){
+  if(minW===0&&minH===0) return true;
+  return new Promise(res=>{
+    const img = new Image();
+    img.onload = ()=>{res(img.naturalWidth>=minW && img.naturalHeight>=minH);};
+    img.onerror = ()=>res(false);
+    img.src = url;
+  });
+}
+
 export async function runScrape(selector) {
   const collected = new Set();
   const items = [];
-  function collect() {
+  async function collect() {
     const nodes = Array.from(document.querySelectorAll(selector));
     for (const el of nodes) {
       if (collected.has(el)) continue;
@@ -16,7 +41,10 @@ export async function runScrape(selector) {
         const m=bg&&bg.match(/url\(["']?(.*?)["']?\)/);
         if(m) url=m[1];
       }
-      if(url) items.push({url});
+      if(!url) continue;
+      if(!validFormat(url)) continue;
+      if(!(await passesSize(url))) continue;
+      items.push({url});
     }
   }
   collect();

@@ -1,0 +1,20 @@
+{
+  "gettyimages.com": {
+    "selector": "img.gallery-asset__thumb"
+  },
+  "shutterstock.com": {
+    "selector": "img.z_h_f"
+  },
+  "pinterest.com": {
+    "selector": "img[srcset]"
+  },
+  "flickr.com": {
+    "selector": "div.photo-list-photo-view img"
+  },
+  "imago-images.com": {
+    "selector": "img.responsive-image__image"
+  },
+  "mirrorpix.com": {
+    "selector": "div.asset img, img.photo"  
+  }
+}

@@ -1,0 +1,58 @@
+document.getElementById('start').addEventListener('click', () => {
+  chrome.tabs.query({active:true,currentWindow:true}, tabs => {
+    if (!tabs.length) return;
+    chrome.tabs.sendMessage(tabs[0].id, {type:'START_PICKER'});
+  });
+});
+
+document.getElementById('export').addEventListener('click',()=>{
+  chrome.runtime.sendMessage({type:'EXPORT_CSV'});
+});
+
+document.getElementById('export-xlsx').addEventListener('click',()=>{
+  chrome.runtime.sendMessage({type:'EXPORT_XLSX'});
+});
+
+document.getElementById('pause').addEventListener('click',()=>{
+  chrome.runtime.sendMessage({type:'QUEUE_PAUSE'});
+  document.getElementById('pause').disabled=true;
+  document.getElementById('resume').disabled=false;
+});
+
+document.getElementById('resume').addEventListener('click',()=>{
+  chrome.runtime.sendMessage({type:'QUEUE_RESUME'});
+  document.getElementById('pause').disabled=false;
+  document.getElementById('resume').disabled=true;
+});
+
+document.getElementById('smart').addEventListener('click',()=>{
+  chrome.tabs.query({active:true,currentWindow:true}, tabs => {
+    if(!tabs.length) return;
+    chrome.tabs.sendMessage(tabs[0].id,{type:'SMART_GUESS'});
+  });
+});
+
+const progressDiv = document.getElementById('progress');
+const MAX_LOG = 500;
+chrome.runtime.onMessage.addListener((msg, sender) => {
+  if(msg?.type==='QUEUE_PROGRESS'){
+    const {progress} = msg;
+    const line = document.createElement('div');
+    line.textContent = `${new Date().toLocaleTimeString()} - ${progress.state}: ${progress.job?.filename || ''}`;
+    progressDiv.appendChild(line);
+    if(progressDiv.children.length>MAX_LOG){
+      progressDiv.removeChild(progressDiv.firstChild);
+    }
+    progressDiv.scrollTop = progressDiv.scrollHeight;
+  }
+});
+
+const dupDiv=document.getElementById('dupCounter'); let dupCount=0;
+chrome.runtime.onMessage.addListener((msg)=>{
+  if(msg?.type==='DUP_SKIPPED'){
+    dupCount++; dupDiv.textContent=`Duplicates skipped: ${dupCount}`;
+    const line=document.createElement('div'); line.style.color='#999'; line.textContent=`dup skipped: ${msg.url}`;
+    progressDiv.appendChild(line);
+    if(progressDiv.children.length>MAX_LOG) progressDiv.removeChild(progressDiv.firstChild);
+  }
+});
